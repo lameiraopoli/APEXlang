@@ -27,5 +27,18 @@ breadcrumb breadcrumb (
         }
     )
 
+    entry sales-representative (
+        name: Representantes de Vendas
+        pageNumber: 4
+        execution {
+            sequence: 30
+        }
+        link {
+            target: {
+                page: 4
+            }
+        }
+    )
+
 )
 

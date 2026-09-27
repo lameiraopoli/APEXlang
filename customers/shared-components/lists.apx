@@ -107,5 +107,25 @@ list navigation-menu (
         }
     )
 
+    entry sales-representative (
+        label: Time de Vendas
+        icon {
+            imageIconCssClasses: fa-users
+        }
+        layout {
+            sequence: 20
+            parentEntry: @parametrization
+        }
+        isCurrent {
+            type: pages
+            pages: 4
+        }
+        link {
+            target: {
+                page: 4
+            }
+        }
+    )
+
 )
 
