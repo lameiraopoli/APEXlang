@@ -1,0 +1,247 @@
+page 2 (
+    name: Phone Types
+    alias: PHONE-TYPES
+    title: Tipos de Telefone
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    navigation {
+        cursorFocus: doNotFocusCursor
+    }
+    security {
+        pageAccessProtection: argumentsMustHaveChecksum
+        formAutoComplete: false
+    }
+
+    region title-bar (
+        name: Tipos de Telefone
+        type: breadcrumb
+        source {
+            breadcrumb: @breadcrumb
+        }
+        layout {
+            sequence: 10
+            slot: breadcrumbBar
+        }
+        appearance {
+            template: @/title-bar
+            templateOptions: #DEFAULT#
+        }
+        componentAppearance {
+            breadcrumbTemplate: @/breadcrumb
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region buttons (
+        name: Buttons
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: BODY
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region phone-types-grid (
+        name: Phone Types Grid
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: TST_PHONE_TYPES
+        }
+        layout {
+            sequence: 10
+            slot: BODY
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                update
+            ]
+        }
+        pagination {
+            type: page
+            showTotalCount: true
+        }
+        toolbar {
+            controls: [
+                searchCol
+                searchField
+                actionsMenu
+                resetButton
+                saveButton
+            ]
+        }
+
+        savedReport PRIMARY (
+            visibility: primary
+            view {
+                default: grid
+            }
+            singleRowView {
+                displayedColumns: true
+            }
+
+            displayColumn (
+                column: @ID
+                layout {
+                    sequence: 1
+                }
+            )
+            displayColumn (
+                column: @CODE
+                layout {
+                    sequence: 2
+                }
+            )
+            displayColumn (
+                column: @NAME
+                layout {
+                    sequence: 3
+                }
+            )
+            displayColumn (
+                column: @DESCRIPTION
+                layout {
+                    sequence: 4
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            layout {
+                sequence: 5
+            }
+            source {
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            exportPrinting {
+                includeInExportPrint: false
+            }
+        )
+
+        column CODE (
+            type: textField
+            heading {
+                heading: Código
+            }
+            layout {
+                sequence: 10
+            }
+            validation {
+                maxLength: 5
+            }
+            source {
+                databaseColumn: CODE
+                dataType: varchar2
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column NAME (
+            type: textField
+            heading {
+                heading: Tipo de Telefone
+            }
+            layout {
+                sequence: 20
+            }
+            validation {
+                maxLength: 50
+            }
+            source {
+                databaseColumn: NAME
+                dataType: varchar2
+            }
+        )
+
+        column DESCRIPTION (
+            type: textField
+            heading {
+                heading: Descrição
+            }
+            layout {
+                sequence: 30
+            }
+            validation {
+                maxLength: 300
+            }
+            source {
+                databaseColumn: DESCRIPTION
+                dataType: varchar2
+            }
+        )
+    )
+
+    button create-phone-type (
+        buttonName: CREATE_PHONE_TYPE
+        label: Criar Novo Tipo de Telefone
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: NEXT
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-plus
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 3
+                clearCache: 3
+            }
+            warnOnUnsavedChanges: doNotCheck
+        }
+    )
+
+    process save-phone-types-grid (
+        name: Interactive Grid - Save Data
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @phone-types-grid
+        execution {
+            sequence: 10
+        }
+    )
+
+    dynamicAction refresh-phone-types-grid (
+        name: Refresh Phone Types Grid
+        execution {
+            sequence: 10
+        }
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @buttons
+        }
+
+        action refresh-grid (
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @phone-types-grid
+            }
+            execution {
+                sequence: 10
+            }
+        )
+    )
+
+)

@@ -1,0 +1,254 @@
+page 3 (
+    name: Phone Type Create
+    alias: PHONE-TYPES-CREATE
+    title: Novo Tipo de Telefone
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: mustNotBePublicUser
+        pageAccessProtection: argumentsMustHaveChecksum
+        formAutoComplete: false
+    }
+
+    region buttons (
+        name: Buttons
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: REGION_POSITION_03
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region form (
+        name: Form
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: TST_PHONE_TYPES
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+        }
+    )
+
+    pageItem P3_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            queryOnly: true
+            primaryKey: true
+        }
+        security {
+            sessionStateProtection: checksumRequiredSessionLevel
+        }
+    )
+
+    pageItem P3_CODE (
+        type: textField
+        label {
+            label: Código
+            alignment: left
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+            width: 10
+        }
+        validation {
+            maxLength: 5
+        }
+        source {
+            formRegion: @form
+            column: CODE
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Abreviação do tipo de telefone
+            helpText: Informe a abreviação usada para identificar o tipo de telefone, por exemplo CEL ou RES.
+        }
+    )
+
+    pageItem P3_NAME (
+        type: textField
+        label {
+            label: Tipo de Telefone
+            alignment: left
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+            width: 32
+        }
+        validation {
+            maxLength: 50
+        }
+        source {
+            formRegion: @form
+            column: NAME
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Nome descritivo do tipo de telefone
+            helpText: Informe o nome descritivo do tipo de telefone que será exibido no cadastro.
+        }
+    )
+
+    pageItem P3_DESCRIPTION (
+        type: textarea
+        label {
+            label: Descrição
+            alignment: left
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+            width: 60
+            height: 4
+        }
+        validation {
+            maxLength: 300
+        }
+        source {
+            formRegion: @form
+            column: DESCRIPTION
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Texto livre, opcional
+            helpText: Descreva livremente o tipo de telefone. Campo opcional.
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Cancelar
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: CLOSE
+        }
+        appearance {
+            buttonTemplate: @/text
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Criar
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: NEXT
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            warnOnUnsavedChanges: doNotCheck
+            databaseAction: insert
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Cancel Dialog
+        execution {
+            sequence: 10
+        }
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+
+        action native-dialog-cancel (
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+
+    )
+
+    process close-dialog (
+        name: Close Dialog
+        type: closeDialog
+        execution {
+            sequence: 20
+        }
+        serverSideCondition {
+            type: requestIsContainedInValue
+            value: CREATE
+        }
+    )
+
+    process initialize-form-form (
+        name: Initialize form Form
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+    )
+
+    process process-form-form (
+        name: Process form Form
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+        }
+        successMessage {
+            successMessage: Tipo de telefone criado com sucesso.
+        }
+    )
+
+)
