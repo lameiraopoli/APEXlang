@@ -1,0 +1,422 @@
+page 8 (
+    name: Order Create
+    alias: ORDERS-CREATE
+    title: Nova Ordem de Venda
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: mustNotBePublicUser
+        pageAccessProtection: argumentsMustHaveChecksum
+        formAutoComplete: false
+    }
+
+    region buttons (
+        name: Buttons
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: REGION_POSITION_03
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region form (
+        name: Form
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: TST_ORDERS
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+        }
+    )
+
+    pageItem P8_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            queryOnly: true
+            primaryKey: true
+        }
+        security {
+            sessionStateProtection: checksumRequiredSessionLevel
+        }
+    )
+
+    pageItem P8_CUSTOMER_ID (
+        type: displayOnly
+        label {
+            label: Cliente
+            alignment: left
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select c.TAX_ID || ' ' || c.NICKNAME as d, c.ID as r
+                from TST_CUSTOMERS c
+                order by c.NICKNAME
+                ```
+        }
+        source {
+            formRegion: @form
+            column: CUSTOMER_ID
+            dataType: varchar2
+        }
+        security {
+            sessionStateProtection: checksumRequiredSessionLevel
+        }
+        help {
+            inlineHelpText: Cliente para o qual o pedido está sendo registrado
+            helpText: Cliente selecionado na página de Clientes. Campo somente leitura.
+        }
+    )
+
+    pageItem P8_SALES_REPRESENTATIVE_ID (
+        type: selectList
+        label {
+            label: Vendedor
+            alignment: left
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select sr.EMPLOYEE_CODE || ' ' || sr.NICKNAME as d, sr.ID as r
+                from TST_SALES_REPRESENTATIVE sr
+                order by sr.NICKNAME
+                ```
+        }
+        source {
+            formRegion: @form
+            column: SALES_REPRESENTATIVE_ID
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Representante de vendas responsável pelo pedido
+            helpText: Selecione o representante de vendas responsável por este pedido.
+        }
+    )
+
+    pageItem P8_ORDER_NRO (
+        type: textField
+        label {
+            label: Nro Pedido
+            alignment: left
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            alignment: left
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 50
+        }
+        source {
+            formRegion: @form
+            column: ORDER_NRO
+            dataType: varchar2
+        }
+        default {
+            type: expression
+            language: sql
+            sqlExpression: to_char(systimestamp,'YYYYMMDD') || '/' || to_char(systimestamp,'HH24MISS')
+        }
+        help {
+            inlineHelpText: Número do pedido de venda, gerado automaticamente
+            helpText: Número do pedido de venda. Gerado automaticamente pela aplicação, mas pode ser ajustado antes de salvar.
+        }
+    )
+
+    pageItem P8_ORDER_DATE (
+        type: datePicker
+        label {
+            label: Data Pedido
+            alignment: left
+        }
+        layout {
+            sequence: 50
+            region: @form
+            slot: regionBody
+            alignment: left
+            startNewRow: false
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+            formatMask: DD-MON-YYYY HH24:MI
+        }
+        source {
+            formRegion: @form
+            column: ORDER_DATE
+            dataType: timestamp
+        }
+        default {
+            type: expression
+            language: sql
+            sqlExpression: systimestamp
+        }
+        help {
+            inlineHelpText: Data em que o pedido de venda foi registrado
+            helpText: Informe a data do pedido de venda.
+        }
+    )
+
+    pageItem P8_ORDER_VALUE (
+        type: textField
+        label {
+            label: Valor Pedido
+            alignment: left
+        }
+        layout {
+            sequence: 60
+            region: @form
+            slot: regionBody
+            alignment: left
+            columnSpan: 4
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: ORDER_VALUE
+            dataType: number
+        }
+        help {
+            inlineHelpText: Valor total do pedido de venda
+            helpText: Informe o valor total do pedido de venda.
+        }
+    )
+
+    pageItem P8_PAID_AMOUNT (
+        type: textField
+        label {
+            label: Valor Pago
+            alignment: left
+        }
+        layout {
+            sequence: 70
+            region: @form
+            slot: regionBody
+            alignment: left
+            startNewRow: false
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: PAID_AMOUNT
+            dataType: number
+        }
+        help {
+            inlineHelpText: Valor já pago pelo cliente
+            helpText: Informe o valor já pago pelo cliente. Campo opcional.
+        }
+    )
+
+    pageItem P8_COMMISSION_RATE (
+        type: textField
+        label {
+            label: Comissão (%)
+            alignment: left
+        }
+        layout {
+            sequence: 80
+            region: @form
+            slot: regionBody
+            alignment: left
+            startNewRow: false
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: COMMISSION_RATE
+            dataType: number
+        }
+        help {
+            inlineHelpText: Percentual de comissão da venda deste pedido
+            helpText: Informe o percentual de comissão da venda deste pedido. Campo opcional.
+        }
+    )
+
+    pageItem P8_NOTES (
+        type: textarea
+        label {
+            label: Notas
+            alignment: left
+        }
+        layout {
+            sequence: 90
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 300
+        }
+        source {
+            formRegion: @form
+            column: NOTES
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Comentários sobre o pedido
+            helpText: Texto livre para comentários sobre o pedido. Campo opcional.
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Cancelar
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: CLOSE
+        }
+        appearance {
+            buttonTemplate: @/text
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Criar
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: NEXT
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            warnOnUnsavedChanges: doNotCheck
+            databaseAction: insert
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Cancel Dialog
+        execution {
+            sequence: 10
+        }
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+
+        action native-dialog-cancel (
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+
+    )
+
+    process close-dialog (
+        name: Close Dialog
+        type: closeDialog
+        execution {
+            sequence: 20
+        }
+        serverSideCondition {
+            type: requestIsContainedInValue
+            value: CREATE
+        }
+    )
+
+    process initialize-form-form (
+        name: Initialize form Form
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+    )
+
+    process process-form-form (
+        name: Process form Form
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+        }
+        successMessage {
+            successMessage: Pedido de venda criado com sucesso.
+        }
+    )
+
+)

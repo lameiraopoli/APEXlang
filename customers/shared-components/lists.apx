@@ -77,6 +77,25 @@ list navigation-menu (
         }
     )
 
+    entry customers (
+        label: Clientes
+        icon {
+            imageIconCssClasses: fa-address-book
+        }
+        layout {
+            sequence: 15
+        }
+        isCurrent {
+            type: pages
+            pages: 6
+        }
+        link {
+            target: {
+                page: 6
+            }
+        }
+    )
+
     entry parametrization (
         label: Parametrização
         icon {

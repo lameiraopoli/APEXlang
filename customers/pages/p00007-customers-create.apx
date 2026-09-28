@@ -1,0 +1,314 @@
+page 7 (
+    name: Customer Create
+    alias: CUSTOMERS-CREATE
+    title: Novo Cliente
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: mustNotBePublicUser
+        pageAccessProtection: argumentsMustHaveChecksum
+        formAutoComplete: false
+    }
+
+    region buttons (
+        name: Buttons
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: REGION_POSITION_03
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region form (
+        name: Form
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: TST_CUSTOMERS
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+        }
+    )
+
+    pageItem P7_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            queryOnly: true
+            primaryKey: true
+        }
+        security {
+            sessionStateProtection: checksumRequiredSessionLevel
+        }
+    )
+
+    pageItem P7_TAX_ID (
+        type: textField
+        label {
+            label: CPNJ
+            alignment: left
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            alignment: left
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 20
+        }
+        source {
+            formRegion: @form
+            column: TAX_ID
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Número do CNPJ do cliente
+            helpText: Informe o número do CNPJ do cliente. Campo opcional.
+        }
+    )
+
+    pageItem P7_NICKNAME (
+        type: textField
+        label {
+            label: Apelido
+            alignment: left
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            alignment: left
+            startNewRow: false
+            columnSpan: 4
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 50
+        }
+        source {
+            formRegion: @form
+            column: NICKNAME
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Nome abreviado pelo qual o cliente é conhecido
+            helpText: Informe o apelido pelo qual o cliente deve ser chamado.
+        }
+    )
+
+    pageItem P7_CREDIT_LIMIT (
+        type: textField
+        label {
+            label: Limit Crédito
+            alignment: left
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            alignment: left
+            startNewRow: false
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: CREDIT_LIMIT
+            dataType: number
+        }
+        help {
+            inlineHelpText: Valor do limite de crédito do cliente
+            helpText: Informe o valor do limite de crédito do cliente. Campo opcional.
+        }
+    )
+
+    pageItem P7_FULL_NAME (
+        type: textField
+        label {
+            label: Nome Completo
+            alignment: left
+        }
+        layout {
+            sequence: 50
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+            width: 60
+        }
+        validation {
+            maxLength: 100
+        }
+        source {
+            formRegion: @form
+            column: FULL_NAME
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Nome completo, opcional
+            helpText: Informe o nome completo do cliente. Campo opcional.
+        }
+    )
+
+    pageItem P7_EMAIL (
+        type: textField
+        label {
+            label: Email
+            alignment: left
+        }
+        layout {
+            sequence: 60
+            region: @form
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/required-floating
+            templateOptions: #DEFAULT#
+            width: 40
+        }
+        validation {
+            maxLength: 100
+        }
+        source {
+            formRegion: @form
+            column: EMAIL
+            dataType: varchar2
+        }
+        help {
+            inlineHelpText: Email principal para envio de mensagem
+            helpText: Informe o email principal do cliente.
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Cancelar
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: CLOSE
+        }
+        appearance {
+            buttonTemplate: @/text
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Criar
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: NEXT
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            warnOnUnsavedChanges: doNotCheck
+            databaseAction: insert
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Cancel Dialog
+        execution {
+            sequence: 10
+        }
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+
+        action native-dialog-cancel (
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+
+    )
+
+    process close-dialog (
+        name: Close Dialog
+        type: closeDialog
+        execution {
+            sequence: 20
+        }
+        serverSideCondition {
+            type: requestIsContainedInValue
+            value: CREATE
+        }
+    )
+
+    process initialize-form-form (
+        name: Initialize form Form
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+    )
+
+    process process-form-form (
+        name: Process form Form
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+        }
+        successMessage {
+            successMessage: Cliente criado com sucesso.
+        }
+    )
+
+)

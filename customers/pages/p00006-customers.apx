@@ -1,0 +1,1072 @@
+page 6 (
+    name: Customers
+    alias: CUSTOMERS
+    title: Clientes
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    navigation {
+        cursorFocus: doNotFocusCursor
+    }
+    security {
+        pageAccessProtection: argumentsMustHaveChecksum
+        formAutoComplete: false
+    }
+
+    region title-bar (
+        name: Clientes
+        type: breadcrumb
+        source {
+            breadcrumb: @breadcrumb
+        }
+        layout {
+            sequence: 10
+            slot: breadcrumbBar
+        }
+        appearance {
+            template: @/title-bar
+            templateOptions: #DEFAULT#
+        }
+        componentAppearance {
+            breadcrumbTemplate: @/breadcrumb
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region col-direita (
+        name: Right Column
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: BODY
+            startNewRow: true
+            columnSpan: 6
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region col-esquerda (
+        name: Left Column
+        type: staticContent
+        layout {
+            sequence: 30
+            slot: BODY
+            startNewRow: false
+            newColumn: true
+            columnSpan: 6
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P6_CUSTOMER_ID (
+        type: hidden
+        layout {
+            sequence: 5
+            region: @col-esquerda
+            slot: regionBody
+        }
+        security {
+            sessionStateProtection: unrestricted
+        }
+        comments {
+            comments: Same-page dynamic-action ownership: this hidden item is updated after render via setValue from the customers grid selection change and is used only as UI state to filter/refresh the orders and phones detail grids and to seed the new-order modal, so checksum-based SSP would block the intended flow.
+        }
+    )
+
+    region clientes-title (
+        name: Customers Title
+        title: Clientes Cadastrados
+        type: staticContent
+        layout {
+            sequence: 10
+            parentRegion: @col-direita
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region clientes-buttons (
+        name: Customers Buttons
+        type: staticContent
+        layout {
+            sequence: 10
+            parentRegion: @clientes-title
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region clientes-grid (
+        name: Customers Grid
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: TST_CUSTOMERS
+        }
+        layout {
+            sequence: 20
+            parentRegion: @clientes-title
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                update
+            ]
+        }
+        pagination {
+            type: page
+            showTotalCount: true
+        }
+        toolbar {
+            controls: [
+                searchCol
+                searchField
+                actionsMenu
+                resetButton
+                saveButton
+            ]
+        }
+        advanced {
+            htmlDomId: customers-grid
+        }
+
+        savedReport PRIMARY (
+            visibility: primary
+            view {
+                default: grid
+            }
+            singleRowView {
+                displayedColumns: true
+            }
+
+            displayColumn (
+                column: @ID
+                layout {
+                    sequence: 1
+                }
+            )
+            displayColumn (
+                column: @TAX_ID
+                layout {
+                    sequence: 2
+                }
+            )
+            displayColumn (
+                column: @NICKNAME
+                layout {
+                    sequence: 3
+                }
+            )
+            displayColumn (
+                column: @LAST_ORDER_DATE
+                layout {
+                    sequence: 4
+                }
+            )
+            displayColumn (
+                column: @CREDIT_LIMIT
+                layout {
+                    sequence: 5
+                }
+            )
+            displayColumn (
+                column: @CURRENT_BALANCE
+                layout {
+                    sequence: 6
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            layout {
+                sequence: 5
+            }
+            source {
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            exportPrinting {
+                includeInExportPrint: false
+            }
+        )
+
+        column TAX_ID (
+            type: textField
+            heading {
+                heading: CPNJ
+            }
+            layout {
+                sequence: 10
+            }
+            validation {
+                maxLength: 20
+            }
+            source {
+                databaseColumn: TAX_ID
+                dataType: varchar2
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column NICKNAME (
+            type: textField
+            heading {
+                heading: Apelido
+            }
+            layout {
+                sequence: 20
+            }
+            validation {
+                maxLength: 50
+            }
+            source {
+                databaseColumn: NICKNAME
+                dataType: varchar2
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column LAST_ORDER_DATE (
+            type: datePicker
+            heading {
+                heading: Dt. Ult. Ordem
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: DD-MON-YYYY
+            }
+            source {
+                databaseColumn: LAST_ORDER_DATE
+                dataType: timestamp
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column CREDIT_LIMIT (
+            type: numberField
+            heading {
+                heading: Limit Crédito
+                alignment: end
+            }
+            layout {
+                sequence: 40
+                columnAlignment: end
+            }
+            source {
+                databaseColumn: CREDIT_LIMIT
+                dataType: number
+            }
+        )
+
+        column CURRENT_BALANCE (
+            type: numberField
+            heading {
+                heading: Saldo
+                alignment: end
+            }
+            layout {
+                sequence: 50
+                columnAlignment: end
+            }
+            source {
+                databaseColumn: CURRENT_BALANCE
+                dataType: number
+            }
+            readOnly {
+                type: always
+            }
+        )
+    )
+
+    button create-customer (
+        buttonName: CREATE_CUSTOMER
+        label: Novo Cliente
+        layout {
+            sequence: 10
+            region: @clientes-buttons
+            slot: NEXT
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-plus
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 7
+                clearCache: 7
+            }
+            warnOnUnsavedChanges: doNotCheck
+        }
+    )
+
+    region rds-tabs (
+        name: Customer Detail Tabs
+        type: regionDisplaySelector
+        layout {
+            sequence: 10
+            parentRegion: @col-esquerda
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/blank-with-attributes-no-grid
+            templateOptions: #DEFAULT#
+        }
+        settings {
+            mode: viewSingleRegion
+            displayRegionIcons: true
+            includeShowAll: false
+            rememberSelection: byUser
+        }
+        advanced {
+            htmlDomId: rds-tabs
+        }
+    )
+
+    region orders-tab (
+        name: Orders Tab
+        title: Ordens de Venda
+        type: staticContent
+        layout {
+            sequence: 20
+            parentRegion: @col-esquerda
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            icon: fa-shopping-cart
+        }
+        advanced {
+            htmlDomId: orders-tab
+            regionDisplaySelector: true
+        }
+    )
+
+    region orders-buttons (
+        name: Orders Buttons
+        type: staticContent
+        layout {
+            sequence: 10
+            parentRegion: @orders-tab
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region orders-grid (
+        name: Orders Grid
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select
+                    o.ID,
+                    o.CUSTOMER_ID,
+                    o.SALES_REPRESENTATIVE_ID,
+                    sr.EMPLOYEE_CODE || ' ' || sr.NICKNAME as SALES_REP_DISPLAY,
+                    o.ORDER_NRO,
+                    o.ORDER_DATE,
+                    o.ORDER_VALUE,
+                    o.PAID_AMOUNT,
+                    o.COMMISSION_RATE,
+                    o.NOTES
+                from TST_ORDERS o
+                left join TST_SALES_REPRESENTATIVE sr
+                    on sr.ID = o.SALES_REPRESENTATIVE_ID
+                where o.CUSTOMER_ID = :P6_CUSTOMER_ID
+                ```
+        }
+        layout {
+            sequence: 20
+            parentRegion: @orders-tab
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                update
+            ]
+        }
+        pagination {
+            type: page
+            showTotalCount: true
+        }
+        toolbar {
+            controls: [
+                searchCol
+                searchField
+                actionsMenu
+                resetButton
+                saveButton
+            ]
+        }
+        messages {
+            whenNoDataFound: Nenhum pedido de venda para o cliente selecionado.
+        }
+        advanced {
+            htmlDomId: orders-grid
+        }
+
+        savedReport PRIMARY (
+            visibility: primary
+            view {
+                default: grid
+            }
+            singleRowView {
+                displayedColumns: true
+            }
+
+            displayColumn (
+                column: @ID
+                layout {
+                    sequence: 1
+                }
+            )
+            displayColumn (
+                column: @SALES_REP_DISPLAY
+                layout {
+                    sequence: 2
+                }
+            )
+            displayColumn (
+                column: @ORDER_NRO
+                layout {
+                    sequence: 3
+                }
+            )
+            displayColumn (
+                column: @ORDER_DATE
+                layout {
+                    sequence: 4
+                }
+            )
+            displayColumn (
+                column: @ORDER_VALUE
+                layout {
+                    sequence: 5
+                }
+            )
+            displayColumn (
+                column: @PAID_AMOUNT
+                layout {
+                    sequence: 6
+                }
+            )
+            displayColumn (
+                column: @COMMISSION_RATE
+                layout {
+                    sequence: 7
+                }
+            )
+            displayColumn (
+                column: @NOTES
+                layout {
+                    sequence: 8
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            layout {
+                sequence: 5
+            }
+            source {
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            exportPrinting {
+                includeInExportPrint: false
+            }
+        )
+
+        column CUSTOMER_ID (
+            type: hidden
+            layout {
+                sequence: 8
+            }
+            source {
+                databaseColumn: CUSTOMER_ID
+                dataType: varchar2
+            }
+            exportPrinting {
+                includeInExportPrint: false
+            }
+        )
+
+        column SALES_REPRESENTATIVE_ID (
+            type: hidden
+            layout {
+                sequence: 9
+            }
+            source {
+                databaseColumn: SALES_REPRESENTATIVE_ID
+                dataType: varchar2
+            }
+            exportPrinting {
+                includeInExportPrint: false
+            }
+        )
+
+        column SALES_REP_DISPLAY (
+            type: textField
+            heading {
+                heading: Vendedor
+            }
+            layout {
+                sequence: 10
+            }
+            source {
+                databaseColumn: SALES_REP_DISPLAY
+                dataType: varchar2
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column ORDER_NRO (
+            type: textField
+            heading {
+                heading: Nro Pedido
+            }
+            layout {
+                sequence: 20
+            }
+            validation {
+                maxLength: 50
+            }
+            source {
+                databaseColumn: ORDER_NRO
+                dataType: varchar2
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column ORDER_DATE (
+            type: datePicker
+            heading {
+                heading: Data Pedido
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: DD-MON-YYYY HH24:MI
+            }
+            source {
+                databaseColumn: ORDER_DATE
+                dataType: timestamp
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column ORDER_VALUE (
+            type: numberField
+            heading {
+                heading: Valor Pedido
+                alignment: end
+            }
+            layout {
+                sequence: 40
+                columnAlignment: end
+            }
+            source {
+                databaseColumn: ORDER_VALUE
+                dataType: number
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column PAID_AMOUNT (
+            type: numberField
+            heading {
+                heading: Valor Pago
+                alignment: end
+            }
+            layout {
+                sequence: 50
+                columnAlignment: end
+            }
+            source {
+                databaseColumn: PAID_AMOUNT
+                dataType: number
+            }
+        )
+
+        column COMMISSION_RATE (
+            type: numberField
+            heading {
+                heading: Comissão (%)
+                alignment: end
+            }
+            layout {
+                sequence: 60
+                columnAlignment: end
+            }
+            source {
+                databaseColumn: COMMISSION_RATE
+                dataType: number
+            }
+            readOnly {
+                type: always
+            }
+        )
+
+        column NOTES (
+            type: textField
+            heading {
+                heading: Notas
+            }
+            layout {
+                sequence: 70
+            }
+            validation {
+                maxLength: 300
+            }
+            source {
+                databaseColumn: NOTES
+                dataType: varchar2
+            }
+        )
+    )
+
+    button create-order (
+        buttonName: CREATE_ORDER
+        label: Nova Ordem
+        layout {
+            sequence: 10
+            region: @orders-buttons
+            slot: NEXT
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-plus
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 8
+                items: {
+                    P8_CUSTOMER_ID: &P6_CUSTOMER_ID.
+                }
+                clearCache: 8
+            }
+            warnOnUnsavedChanges: doNotCheck
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P6_CUSTOMER_ID
+        }
+    )
+
+    region phones-tab (
+        name: Phones Tab
+        title: Telefones
+        type: staticContent
+        layout {
+            sequence: 40
+            parentRegion: @col-esquerda
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            icon: fa-phone
+        }
+        advanced {
+            htmlDomId: phones-tab
+            regionDisplaySelector: true
+        }
+    )
+
+    region phones-grid (
+        name: Phones Grid
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: TST_CUSTOMER_PHONES
+        }
+        layout {
+            sequence: 10
+            parentRegion: @phones-tab
+            slot: SUB_REGIONS
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        masterDetail {
+            masterRegion: @clientes-grid
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+        }
+        pagination {
+            type: page
+            showTotalCount: true
+        }
+        toolbar {
+            controls: [
+                searchCol
+                searchField
+                actionsMenu
+                resetButton
+                saveButton
+            ]
+        }
+        messages {
+            whenNoDataFound: Nenhum telefone cadastrado para o cliente selecionado.
+        }
+        advanced {
+            htmlDomId: phones-grid
+        }
+
+        savedReport PRIMARY (
+            visibility: primary
+            view {
+                default: grid
+            }
+            singleRowView {
+                displayedColumns: true
+            }
+
+            displayColumn (
+                column: @ID
+                layout {
+                    sequence: 1
+                }
+            )
+            displayColumn (
+                column: @PHONE_TYPE_ID
+                layout {
+                    sequence: 2
+                }
+            )
+            displayColumn (
+                column: @DDI
+                layout {
+                    sequence: 3
+                }
+            )
+            displayColumn (
+                column: @DDD
+                layout {
+                    sequence: 4
+                }
+            )
+            displayColumn (
+                column: @PHONE_NUMBER
+                layout {
+                    sequence: 5
+                }
+            )
+            displayColumn (
+                column: @NOTES
+                layout {
+                    sequence: 6
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            layout {
+                sequence: 5
+            }
+            source {
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            exportPrinting {
+                includeInExportPrint: false
+            }
+        )
+
+        column CUSTOMER_ID (
+            type: hidden
+            layout {
+                sequence: 8
+            }
+            source {
+                databaseColumn: CUSTOMER_ID
+                dataType: varchar2
+            }
+            exportPrinting {
+                includeInExportPrint: false
+            }
+        )
+
+        column PHONE_TYPE_ID (
+            type: selectList
+            heading {
+                heading: Tipo do Telefone
+            }
+            layout {
+                sequence: 10
+            }
+            lov {
+                type: sqlQuery
+                sqlQuery:
+                    ```sql
+                    select CODE as d, ID as r
+                    from TST_PHONE_TYPES
+                    order by CODE
+                    ```
+            }
+            source {
+                databaseColumn: PHONE_TYPE_ID
+                dataType: varchar2
+            }
+        )
+
+        column DDI (
+            type: numberField
+            heading {
+                heading: DDI
+            }
+            layout {
+                sequence: 20
+                columnAlignment: end
+            }
+            source {
+                databaseColumn: DDI
+                dataType: number
+            }
+        )
+
+        column DDD (
+            type: numberField
+            heading {
+                heading: DDD
+            }
+            layout {
+                sequence: 30
+                columnAlignment: end
+            }
+            source {
+                databaseColumn: DDD
+                dataType: number
+            }
+        )
+
+        column PHONE_NUMBER (
+            type: textField
+            heading {
+                heading: Nro Telefone
+            }
+            layout {
+                sequence: 40
+            }
+            validation {
+                maxLength: 30
+            }
+            source {
+                databaseColumn: PHONE_NUMBER
+                dataType: varchar2
+            }
+        )
+
+        column NOTES (
+            type: textField
+            heading {
+                heading: Notas
+            }
+            layout {
+                sequence: 50
+            }
+            validation {
+                maxLength: 300
+            }
+            source {
+                databaseColumn: NOTES
+                dataType: varchar2
+            }
+        )
+    )
+
+    process save-clientes-grid (
+        name: Interactive Grid - Save Data (Customers)
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @clientes-grid
+        execution {
+            sequence: 10
+        }
+    )
+
+    process save-orders-grid (
+        name: Interactive Grid - Save Data (Orders)
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @orders-grid
+        execution {
+            sequence: 20
+        }
+    )
+
+    process save-phones-grid (
+        name: Interactive Grid - Save Data (Phones)
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @phones-grid
+        execution {
+            sequence: 30
+        }
+    )
+
+    dynamicAction customer-selection-change (
+        name: Customer Selection Change
+        execution {
+            sequence: 10
+        }
+        when {
+            event: region/interactiveGrid/interactivegridselectionchange
+            selectionType: region
+            region: @clientes-grid
+        }
+
+        action set-customer-id (
+            action: setValue
+            settings {
+                type: jsExpression
+                jsExpression: (function(){var r=apex.region("customers-grid").widget().interactiveGrid("getSelectedRecords");return r.length?r[0].ID:null;})()
+            }
+            affectedElements {
+                selectionType: items
+                items: [
+                    P6_CUSTOMER_ID
+                ]
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+
+        action refresh-orders-grid (
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @orders-grid
+            }
+            execution {
+                sequence: 20
+                fireOnInit: false
+            }
+        )
+
+    )
+
+    dynamicAction refresh-clientes-grid (
+        name: Refresh Customers Grid
+        execution {
+            sequence: 20
+        }
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @clientes-buttons
+        }
+
+        action refresh-grid (
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @clientes-grid
+            }
+            execution {
+                sequence: 10
+            }
+        )
+    )
+
+    dynamicAction refresh-orders-after-create (
+        name: Refresh Orders Grid After Create
+        execution {
+            sequence: 30
+        }
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @orders-buttons
+        }
+
+        action refresh-grid (
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @orders-grid
+            }
+            execution {
+                sequence: 10
+            }
+        )
+
+        action refresh-clientes (
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @clientes-grid
+            }
+            execution {
+                sequence: 20
+            }
+        )
+    )
+
+)
